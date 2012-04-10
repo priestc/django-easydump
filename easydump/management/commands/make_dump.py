@@ -16,20 +16,20 @@ class Command(EasyDumpCommand):
         
         # do the dump only if it already hasn't been done yet
         if not os.path.exists('dump'):
-            log.info("Dumping postgres to file...")
-            os.system(cmd)
+            log.info("Dumping database to file...")
+            os.system(manifest.dump_cmd)
         else:
-            print("Skipping postgres dump because it already exists")
+            log.debug("Skipping postgres dump because it already exists")
 
-        bucket = self.get_bucket(manifest)
-        k = Key(bucket)
-        k.key = datetime.datetime.now().isoformat()
+        # make a key into the bucket where we will put the dump
+        k = Key(manifest.bucket)
+        k.key = "%s|%s" % (dump, datetime.datetime.now().isoformat())
 
         # upload file
-        log.info("uploading %s to S3..." % k.key)
-        k.set_contents_from_filename('dump', reduced_redundancy=True)
+        log.info("uploading %s to s3://%s/..." % (k.key, manifest.bucket_name))
+        k.set_contents_from_filename('dump', reduced_redundancy=manifest.reduced_redundancy)
 
         # clean up
-        os.remove('this_dump')
+        os.remove('dump')
         
-        log.ingo("Data Dump Successfully Uploaded.")
+        log.info("Data Dump Successfully Uploaded.")
