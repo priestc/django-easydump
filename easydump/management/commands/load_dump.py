@@ -25,7 +25,7 @@ class Command(EasyDumpCommand):
             log.info("Downloading from S3...")
             key.get_contents_to_filename('easydump')
         else:
-            log.info('not downloading because it already has been downloaded')
+            log.info('Skipping download because it already has been downloaded')
         
         # put into postgres
         cmd = manifest.restore_cmd
