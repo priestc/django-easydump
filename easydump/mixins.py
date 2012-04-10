@@ -36,8 +36,8 @@ class Manifest(object):
 
     def _get_dumper(self):
         """
-        Based on which kind of database theis manifest is for, get teh proper
-        dumper object
+        Based on which kind of database theis manifest is for, get the proper
+        dumper object.
         """
         engine = self.database['ENGINE']
         if 'postgis' in engine:
@@ -54,7 +54,7 @@ class Manifest(object):
 
     def _get_tables(self):
         """
-        return all the database tables that we are going to dump.
+        Return all the database tables that we are going to dump.
         """
 
         all_models = models.get_models()

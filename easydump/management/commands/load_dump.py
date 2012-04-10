@@ -3,9 +3,10 @@ import os
 import logging
 log = logging.getLogger(__name__)
 
-from dateutil.parser import parse as iso_parse
 from django.conf import settings
 from easydump.mixins import EasyDumpCommand
+
+from easydump.utils import key_parser
 
 class Command(EasyDumpCommand):
     """
@@ -38,26 +39,15 @@ class Command(EasyDumpCommand):
         """
         none = datetime.datetime(1,1,1) # always be expired
         
-        def parser(key):
+        def p(name, prefix):
             """
-            given a key, parse out the prefix and parse into a datetime object
-            (for comparison)
+            A new parser function because the sorted() function can't compare 
+            datetime objects with None, so instead of None, return a really really
+            old datetime object.
             """
-            
-            try:
-                key_prefix, iso_date = key.split('|')
-            except:
-                # some weird key that was not put there by easydump
-                log.info("found weird key: %s" % key)
-                return none
-            
-            if prefix == key_prefix:
-                return iso_parse(iso_date)
-            else:
-                log.info("wrong prefix: %s" % key)
-                return none
+            return key_parser(name, prefix) or none
         
-        keys = [{'dt': parser(k.name), 'string': k.name} for k in bucket.list()]
+        keys = [{'dt': p(k.name, prefix), 'string': k.name} for k in bucket.list()]
         latest = sorted(keys, key=lambda x: x['dt'])[-1]
         key = latest['string']
         dt = latest['dt']
