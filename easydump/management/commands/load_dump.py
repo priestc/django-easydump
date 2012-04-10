@@ -1,49 +1,30 @@
 import os
 from optparse import make_option
-
-from dateutil.parser import parse
-
-from boto.s3.connection import S3Connection
-
-from django.core.management.base import NoArgsCommand
-from django.conf import settings
-
 import logging
 log = logging.getLogger(__name__)
 
-from easydump.mixins import DumpMixin
+from dateutil.parser import parse
+from django.conf import settings
+from easydump.mixins import EasyDumpCommand
 
-restore_cmd = 'pg_restore -d {manifest[database][NAME]} --role={manifest[database][USER]} --jobs={manifest[jobs]} {manifest[save_path]}'
-
-class Command(NoArgsCommand, DumpMixin):
-    
-    option_list = NoArgsCommand.option_list + (
-        make_option(
-            '--dump',
-            '-d',
-            dest='dump',
-            help="Dump to perform",
-        ),
-    )
-    
+class Command(EasyDumpCommand):
+    """
+    Retrieve a dump file from S3, then apply it to the database
+    """
     def handle(self, *args, **options):
         
         # get manifest
         dump = options['dump']
         manifest = self.get_manifest(dump)
-
-        # connect to S3
-        c = S3Connection(settings.AWS_ACCESS_KEY, settings.AWS_SECRET_KEY)
-        bucket = c.get_bucket(manifest['s3-bucket'])
         
         # get the key for the correct dump (the latest one)
         key = self.get_latest(bucket)
         
-        manifest['save_path'] = manifest['save_path'].format(key=key.name)
+        save_path = manifest.get_save_template().format(key=key)
         
-        if not os.path.exists(manifest['save_path']):
+        if not os.path.exists(save_path):
             log.info("Downloading from S3...")      
-            key.get_contents_to_filename(manifest['save_path'])
+            key.get_contents_to_filename(save_path)
             log.info("Done")
         else:
             log.info('not downloading because it already has been downloaded')

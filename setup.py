@@ -10,7 +10,7 @@ METADATA = dict(
     long_description=open('README.rst').read(),
     url='http://github.com/nbv4/django-easydump',
     keywords='django dump database',
-    install_requires=['django'],
+    install_requires=['django', 'python-dateutil', 'boto'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
