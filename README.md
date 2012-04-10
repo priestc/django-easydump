@@ -8,8 +8,8 @@ from your production machine onto your development machine. This application can
 
 Installation:
 -------------
-#) `pip install django-easydump`
-#) add to `INSTALLED_APPS`
+1. `pip install django-easydump`
+2. add to `INSTALLED_APPS`
 
 Configuration:
 --------------
