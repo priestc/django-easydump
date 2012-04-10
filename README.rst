@@ -16,7 +16,7 @@ Installation:
 Configuration:
 --------------
 
-In your settings, add a setting called EASYDUMP_MANIFESTS:
+In your settings, add a setting called EASYDUMP_MANIFESTS::
 
     AWS_SECRET_KEY = ''
     AWS_ACCESS_KEY = ''
