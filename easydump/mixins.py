@@ -43,6 +43,15 @@ class Manifest(object):
         if 'postgis' in engine:
             return dumpers.PostgresDumper
 
+        if 'postgresql' in engine:
+            return dumpers.PostgresDumper
+        
+        if 'oracle' in engine:
+            return dumpers.OracleDumper
+        
+        if 'mysql' in engine:
+            return dumpers.MySQLDumper
+
     def _get_tables(self):
         """
         return all the database tables that we are going to dump.

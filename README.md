@@ -52,6 +52,6 @@ overwrite data!!
 This will go through your bucket and remove all dumps except for ones performed on at 9PM on a monday. This command is to keep your S3 bucket from
 getting huge. In future versions, this command will be customizable.
 
-Notes
------
+Notes:
+------
 Postgres/Postgis currently only supported. Mysql/Oracle/SQLite support coming soon.
