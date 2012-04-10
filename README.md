@@ -3,8 +3,9 @@ django-easydump
 
 Description:
 ------------
-This application is for easiely saving and loading database dumps between deployments. For instance you may want to copy the database
-from your production machine onto your development machine. This application can also be used to create backups.
+This application is for easily saving and loading database dumps between deployments. For instance you may want to copy the database
+from your production machine onto your development machine for testing. It uses Amazon's S3 service to facilitate in transferring
+and storing database dumps.
 
 Installation:
 -------------
@@ -42,10 +43,10 @@ Usage:
 
 This command will dump your database based on the ``default`` manifest in your settings and upload it to the S3 bucket.
 
-`python manage.py load_dump -d default`
+`python manage.py load_dump -d location`
 
-This command will download the latest dump from the S3 bucket and apply it to your database. Make sure you don't run this command on your production machine, it will
-overwrite data!!
+This command will download the latest dump according to the `location` manifest from the S3 bucket and apply it to your database.
+Make sure you don't run this command on your production machine, it will overwrite data!!
 
 `python manage.py rotate_dumps -d default`
 
