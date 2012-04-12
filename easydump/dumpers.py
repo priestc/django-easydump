@@ -36,7 +36,7 @@ class Dumper(object):
 
 class PostgresDumper(Dumper):
     restore_cmd = 'pg_restore --dbname {database_name} --role={database_user} --jobs={jobs} easydump'
-    dump_cmd = "pg_dump --clean --no-owner --format=c {tables} {database_name} > dump"
+    dump_cmd = "pg_dump --clean --no-owner --format=c {tables} {database_name} > easydump"
     
     @classmethod
     def format_for_dump(cls, **kwargs):

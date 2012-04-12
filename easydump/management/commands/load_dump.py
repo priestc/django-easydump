@@ -6,7 +6,7 @@ log = logging.getLogger(__name__)
 from django.conf import settings
 from easydump.mixins import EasyDumpCommand
 
-from easydump.utils import key_parser
+from easydump.utils import key_parser, progress_callback
 
 class Command(EasyDumpCommand):
     """
@@ -23,7 +23,7 @@ class Command(EasyDumpCommand):
         
         if not os.path.exists('easydump'):
             log.info("Downloading from S3...")
-            key.get_contents_to_filename('easydump')
+            key.get_contents_to_filename('easydump', cb=progress_callback)
         else:
             log.info('Skipping download because it already has been downloaded')
         
