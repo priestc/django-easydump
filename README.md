@@ -1,10 +1,12 @@
-# Description #
-This application is for easily saving and loading database dumps between deployments. For instance you may want to copy the database from your production machine onto your development machine for testing. It uses Amazon's S3 service to facilitate in transferring and storing database dumps.
+# At a glance #
+* Simply create database dumps no matter how large your database is (Django's `loaddata` and `dumpdata` commands choke on tables greater than a few thousand rows)
+* Customizable dumps that can exclude certain tables. Some tables contain static data which does not need to be backed up on the same schedule as, say, `UserProfile` data.
+* Automatic dump storage and retrieval.
 
 # How it works #
-When you run the `make_dump` command, the plugin makes a call to `pg_dump` (only postgres supported at this time), creates a compressed dump, then uploads it to an S3 bucket. The file put to the S3 bucket with the key '[dump name]|[iso formatted date]" It is recommended to only run this command on your production deployment.
+When you run the `make_dump` command, the plugin makes a call to `pg_dump` (only postgres supported at this time), creates a compressed dump, then uploads it to an S3 bucket. It is recommended to only run this command on your production deployment. Preferably in a cron.
 
-When the `load_dump` command is called (it is recommended to only run this command on your local development deployments), the app will download the latest dump from the bucket based on the timestamp in the key, and will apply that database dump into the current database.
+When the `load_dump` command is called (it is recommended to only run this command on your local/qa/staging deployments), the app will download the latest dump from the bucket (based on the timestamp in the key), and will apply that database dump into the current database.
 
 # Installation #
 1. `pip install django-easydump`
