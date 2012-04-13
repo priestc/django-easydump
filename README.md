@@ -30,8 +30,8 @@ In your settings, add three settings: `AWS_SECRET_KEY`, `AWS_ACCESS_KEY`, and `E
     }
     
 * `database` must match one in your `DATABASES` setting (old `DATABASE_` settings are not recognized)
-* `include-models` is a list of models that you want included in the dump
-* `exclude-models` are models you want to not have included in dumps
+* `include-models` is a list of models that you want included in the dump (leave blank to include **all** models)
+* `exclude-models` are models you want to not have included in dumps. This setting is ignored if `include-models` is defined.
 * `extra-table` is a list of table names that do not correlate to a django model which you want included in the dump.
 * `s3-bucket` is the name of the bucket you want dumps to be saved to.
 * `reduced-redundancy` - When uploading dumps, if this value is `True`, it will save the file to S3 using the

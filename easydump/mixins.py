@@ -79,7 +79,7 @@ class Manifest(object):
             if add_to_dump:
                 dump_tables.append(table_name)
 
-        return dump_tables + self.extra_tables
+        return set(dump_tables + self.extra_tables)
 
 class EasyDumpCommand(NoArgsCommand):
     """
