@@ -4,7 +4,7 @@ This application is for easily saving and loading database dumps between deploym
 # How it works #
 When you run the `make_dump` command, the plugin makes a call to `pg_dump` (only postgres supported at this time), creates a compressed dump, then uploads it to an S3 bucket. The file put to the S3 bucket with the key '[dump name]|[iso formatted date]" It is recommended to only run this command on your production deployment.
 
-When the `load_dump` command is called (it is recommended to only run this command on your local development deployments), the app will download the latest dump based on the timestamp in the key, and will apply that database dump into the current database.
+When the `load_dump` command is called (it is recommended to only run this command on your local development deployments), the app will download the latest dump from the bucket based on the timestamp in the key, and will apply that database dump into the current database.
 
 # Installation #
 1. `pip install django-easydump`
