@@ -1,7 +1,10 @@
 # Description #
-This application is for easily saving and loading database dumps between deployments. For instance you may want to copy the database
-from your production machine onto your development machine for testing. It uses Amazon's S3 service to facilitate in transferring
-and storing database dumps.
+This application is for easily saving and loading database dumps between deployments. For instance you may want to copy the database from your production machine onto your development machine for testing. It uses Amazon's S3 service to facilitate in transferring and storing database dumps.
+
+# How it works #
+When you run the `make_dump` command, the plugin makes a call to `pg_dump` (only postgres supported at this time), creates a compressed dump, then uploads it to an S3 bucket. The file put to the S3 bucket with the key '[dump name]|[iso formatted date]" It is recommended to only run this command on your production deployment.
+
+When the `load_dump` command is called (it is recommended to only run this command on your local development deployments), the app will download the latest dump based on the timestamp in the key, and will apply that database dump into the current database.
 
 # Installation #
 1. `pip install django-easydump`
@@ -42,13 +45,11 @@ This command will dump your database based on the ``default`` manifest in your s
 
 `python manage.py load_dump location`
 
-This command will download the latest dump according to the `location` manifest from the S3 bucket and apply it to your database.
-Make sure you don't run this command on your production machine, it will overwrite data!!
+This command will download the latest dump according to the `location` manifest from the S3 bucket and apply it to your database. Make sure you don't run this command on your production machine, it will overwrite data!!
 
 `python manage.py rotate_dumps default`
 
-This will go through your bucket and remove all dumps except for ones performed on at 9PM on a monday. This command is to keep your S3 bucket from
-getting huge. In future versions, this command will be customizable.
+This will go through your bucket and remove all dumps except for ones performed on at 9PM on a monday. This command is to keep your S3 bucket from getting huge. In future versions, this command will be customizable.
 
 # Notes #
 Postgres/Postgis currently only supported. Mysql/Oracle/SQLite support coming soon.
