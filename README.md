@@ -1,15 +1,13 @@
-# django-easydump #
-
-## Description ##
+# Description #
 This application is for easily saving and loading database dumps between deployments. For instance you may want to copy the database
 from your production machine onto your development machine for testing. It uses Amazon's S3 service to facilitate in transferring
 and storing database dumps.
 
-## Installation ##
+# Installation #
 1. `pip install django-easydump`
 2. add to `INSTALLED_APPS`
 
-## Configuration ##
+# Configuration #
 In your settings, add three settings: `AWS_SECRET_KEY`, `AWS_ACCESS_KEY`, and `EASYDUMP_MANIFESTS`::
 
     AWS_SECRET_KEY = ''
@@ -37,7 +35,7 @@ In your settings, add three settings: `AWS_SECRET_KEY`, `AWS_ACCESS_KEY`, and `E
 * `reduced-redundancy` - When uploading dumps, if this value is `True`, it will save the file to S3 using the
 [reduced_redundancy](http://aws.amazon.com/about-aws/whats-new/2010/05/19/announcing-amazon-s3-reduced-redundancy-storage/) flag.
 
-## Usage ##
+# Usage #
 `python manage.py make_dump default`
 
 This command will dump your database based on the ``default`` manifest in your settings and upload it to the S3 bucket.
@@ -52,10 +50,10 @@ Make sure you don't run this command on your production machine, it will overwri
 This will go through your bucket and remove all dumps except for ones performed on at 9PM on a monday. This command is to keep your S3 bucket from
 getting huge. In future versions, this command will be customizable.
 
-## Notes ##
+# Notes #
 Postgres/Postgis currently only supported. Mysql/Oracle/SQLite support coming soon.
 
-## Changelog ##
+# Changelog #
 ### v0.1.0 ###
 * initial release
 
