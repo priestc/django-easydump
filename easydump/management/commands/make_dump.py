@@ -12,7 +12,7 @@ class Command(EasyDumpCommand):
 
     def handle(self, *args, **options):
         
-        dump = options['dump']
+        dump = args[0]
         manifest = self.get_manifest(dump)
         
         # do the dump only if it already hasn't been done yet

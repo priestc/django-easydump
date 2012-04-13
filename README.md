@@ -1,19 +1,15 @@
-django-easydump
-===============
+# django-easydump #
 
-Description:
-------------
+## Description ##
 This application is for easily saving and loading database dumps between deployments. For instance you may want to copy the database
 from your production machine onto your development machine for testing. It uses Amazon's S3 service to facilitate in transferring
 and storing database dumps.
 
-Installation:
--------------
+## Installation ##
 1. `pip install django-easydump`
 2. add to `INSTALLED_APPS`
 
-Configuration:
---------------
+## Configuration ##
 In your settings, add three settings: `AWS_SECRET_KEY`, `AWS_ACCESS_KEY`, and `EASYDUMP_MANIFESTS`::
 
     AWS_SECRET_KEY = ''
@@ -28,6 +24,7 @@ In your settings, add three settings: `AWS_SECRET_KEY`, `AWS_ACCESS_KEY`, and `E
         'default': {
             'database': 'default',
             'exclude-models': 'Location',
+            'extra-tables': ['django_deleted_model'],
             's3-bucket': 'my_dump_bucket'
         }
     }
@@ -35,24 +32,42 @@ In your settings, add three settings: `AWS_SECRET_KEY`, `AWS_ACCESS_KEY`, and `E
 * `database` must match one in your `DATABASES` setting (old `DATABASE_` settings are not recognized)
 * `include-models` is a list of models that you want included in the dump
 * `exclude-models` are models you want to not have included in dumps
+* `extra-table` is a list of table names that do not correlate to a django model which you want included in the dump.
 * `s3-bucket` is the name of the bucket you want dumps to be saved to.
+* `reduced-redundancy` - When uploading dumps, if this value is `True`, it will save the file to S3 using the
+[reduced_redundancy](http://aws.amazon.com/about-aws/whats-new/2010/05/19/announcing-amazon-s3-reduced-redundancy-storage/) flag.
 
-Usage:
-------
-`python manage.py make_dump -d default`
+## Usage ##
+`python manage.py make_dump default`
 
 This command will dump your database based on the ``default`` manifest in your settings and upload it to the S3 bucket.
 
-`python manage.py load_dump -d location`
+`python manage.py load_dump location`
 
 This command will download the latest dump according to the `location` manifest from the S3 bucket and apply it to your database.
 Make sure you don't run this command on your production machine, it will overwrite data!!
 
-`python manage.py rotate_dumps -d default`
+`python manage.py rotate_dumps default`
 
 This will go through your bucket and remove all dumps except for ones performed on at 9PM on a monday. This command is to keep your S3 bucket from
 getting huge. In future versions, this command will be customizable.
 
-Notes:
-------
+## Notes ##
 Postgres/Postgis currently only supported. Mysql/Oracle/SQLite support coming soon.
+
+## Changelog ##
+### v0.1.0 ###
+* initial release
+
+### v0.1.1 - v0.1.3 ##
+* small documentation fixed
+
+### v0.2.0 ###
+* added progress output for uploads/downloads
+* improved documentation
+
+### v0.2.1 ###
+* better documentation
+* added ability to specify `extra-tables` in manifest
+* got rid of `-d` option, now you just specify the dump manifest name.
+* added changelog to `README`

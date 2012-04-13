@@ -15,7 +15,7 @@ class Command(EasyDumpCommand):
     def handle(self, *args, **options):
         
         # get manifest
-        dump = options['dump']
+        dump = args[0]
         manifest = self.get_manifest(dump)
         
         # get the key for the correct dump (the latest one)
