@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Django-easydump by priestc</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/priestc/django-easydump">Fork On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/priestc/django-easydump/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/priestc/django-easydump/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Django-easydump</h1>
+          <p>Easily load database snapshots across deployments</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/priestc">priestc</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>At a glance</h1>
+
+<ul>
+<li>Simply create database dumps no matter how large your database is (Django's <code>loaddata</code> and <code>dumpdata</code> commands choke on tables greater than a few thousand rows)</li>
+<li>Customizable dumps that can exclude certain tables. Some tables contain static data which does not need to be backed up on the same schedule as, say, <code>UserProfile</code> data.</li>
+<li>Automatic dump storage and retrieval.</li>
+</ul><h1>How it works</h1>
+
+<p>When you run the <code>make_dump</code> command, the plugin makes a call to <code>pg_dump</code> (only postgres supported at this time), creates a compressed dump, then uploads it to an S3 bucket. It is recommended to only run this command on your production deployment. Preferably in a cron.</p>
+
+<p>When the <code>load_dump</code> command is called (it is recommended to only run this command on your local/qa/staging deployments), the app will download the latest dump from the bucket (based on the timestamp in the key), and will apply that database dump into the current database.</p>
+
+<h1>Installation</h1>
+
+<ol>
+<li><code>pip install django-easydump</code></li>
+<li>add to <code>INSTALLED_APPS</code>
+</li>
+</ol><h1>Configuration</h1>
+
+<p>In your settings, add three settings: <code>AWS_SECRET_KEY</code>, <code>AWS_ACCESS_KEY</code>, and <code>EASYDUMP_MANIFESTS</code>::</p>
+
+<pre><code>AWS_SECRET_KEY = ''
+AWS_ACCESS_KEY = ''
+
+EASYDUMP_MANIFESTS = {
+    'location': {
+        'database': 'default',
+        'include-models': 'Location',
+        's3-bucket': 'my_dump_bucket'
+    },
+    'default': {
+        'database': 'default',
+        'exclude-models': 'Location',
+        'extra-tables': ['django_deleted_model'],
+        's3-bucket': 'my_dump_bucket'
+    }
+}
+</code></pre>
+
+<ul>
+<li>
+<code>database</code> must match one in your <code>DATABASES</code> setting (old <code>DATABASE_</code> settings are not recognized)</li>
+<li>
+<code>include-models</code> is a list of models that you want included in the dump (leave blank to include <strong>all</strong> models)</li>
+<li>
+<code>exclude-models</code> are models you want to not have included in dumps. This setting is ignored if <code>include-models</code> is defined.</li>
+<li>
+<code>extra-table</code> is a list of table names that do not correlate to a django model which you want included in the dump.</li>
+<li>
+<code>s3-bucket</code> is the name of the bucket you want dumps to be saved to.</li>
+<li>
+<code>reduced-redundancy</code> - When uploading dumps, if this value is <code>True</code>, it will save the file to S3 using the
+<a href="http://aws.amazon.com/about-aws/whats-new/2010/05/19/announcing-amazon-s3-reduced-redundancy-storage/">reduced_redundancy</a> flag.</li>
+</ul><h1>Usage</h1>
+
+<p><code>python manage.py make_dump default</code></p>
+
+<p>This command will dump your database based on the <code>default</code> manifest in your settings and upload it to the S3 bucket.</p>
+
+<p><code>python manage.py load_dump location</code></p>
+
+<p>This command will download the latest dump according to the <code>location</code> manifest from the S3 bucket and apply it to your database. Make sure you don't run this command on your production machine, it will overwrite data!!</p>
+
+<p><code>python manage.py rotate_dumps default</code></p>
+
+<p>This will go through your bucket and remove all dumps except for ones performed on at 9PM on a monday. This command is to keep your S3 bucket from getting huge. In future versions, this command will be customizable.</p>
+
+<h1>Notes</h1>
+
+<p>Postgres/Postgis currently only supported. Mysql/Oracle/SQLite support coming soon.</p>
+
+<h1>Changelog</h1>
+
+<h3>v0.1.0</h3>
+
+<ul>
+<li>initial release</li>
+</ul><h3>v0.1.1 - v0.1.3</h3>
+
+<ul>
+<li>small documentation fixed</li>
+</ul><h3>v0.2.0</h3>
+
+<ul>
+<li>added progress output for uploads/downloads</li>
+<li>improved documentation</li>
+</ul><h3>v0.2.1</h3>
+
+<ul>
+<li>better documentation</li>
+<li>added ability to specify <code>extra-tables</code> in manifest</li>
+<li>got rid of <code>-d</code> option, now you just specify the dump manifest name.</li>
+<li>added changelog to <code>README</code>
+</li>
+</ul>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-501381-9");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
