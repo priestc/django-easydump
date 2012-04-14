@@ -12,7 +12,7 @@ METADATA = dict(
     keywords='django dump database',
     install_requires=['django', 'python-dateutil', 'boto'],
     include_package_data=True,
-    package_data==['README.md'],
+    package_data=['README.md'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
