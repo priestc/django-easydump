@@ -32,11 +32,11 @@ class Command(EasyDumpCommand):
         # upload file
         log.info("uploading %s to s3://%s/..." % (k.key, manifest.bucket_name))
         k.set_contents_from_filename(
-            'dump',
+            'easydump',
             reduced_redundancy=manifest.reduced_redundancy,
             cb=progress_callback)
 
         # clean up
-        os.remove('dump')
+        os.remove('easydump')
         
         log.info("Data Dump Successfully Uploaded.")
