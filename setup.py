@@ -3,11 +3,13 @@ from setuptools import setup, find_packages
 
 METADATA = dict(
     name='django-easydump',
-    version=open('VERSION').read(),
+    version='0.2.5',
+    #version=open('VERSION').read(),
     author='Chris Priest',
     author_email='cp368202@ohiou.edu',
     description='Easily load database snapshots across deployments',
-    long_description=open('README.md').read(),
+    long_description='go here to learn more: http://priestc.github.com/django-easydump/',
+    #long_description=open('README.md').read(),
     url='http://priestc.github.com/django-easydump/',
     keywords='django dump database',
     install_requires=['django', 'python-dateutil', 'boto'],

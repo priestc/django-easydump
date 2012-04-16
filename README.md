@@ -72,3 +72,6 @@ Postgres/Postgis currently only supported. Mysql/Oracle/SQLite support coming so
 * added ability to specify `extra-tables` in manifest
 * got rid of `-d` option, now you just specify the dump manifest name.
 * added changelog to `README`
+
+### v0.2.2 - 0.2.5 ##
+* fixed bugs in setup.py
