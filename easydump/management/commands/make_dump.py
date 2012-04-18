@@ -18,6 +18,7 @@ class Command(EasyDumpCommand):
         # do the dump only if it already hasn't been done yet
         if not os.path.exists('easydump'):
             log.info("Dumping database to file...")
+            log.debug("dump command: %s" % manifest.dump_cmd)
             os.system(manifest.dump_cmd)
         else:
             log.debug("Skipping postgres dump because it already exists")

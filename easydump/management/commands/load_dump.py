@@ -29,6 +29,7 @@ class Command(EasyDumpCommand):
         
         # put into postgres
         cmd = manifest.restore_cmd
+        log.debug("restore command: %s" % cmd)
         os.system(cmd)
         os.remove('easydump')
 
