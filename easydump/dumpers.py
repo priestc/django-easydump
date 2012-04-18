@@ -9,6 +9,9 @@ class Dumper(object):
             
         database_name = manifest.database['NAME']
         database_user = manifest.database['USER']
+        database_host = manifest.database['HOST']
+        database_port = manifest.database['PORT']
+        
         jobs = manifest.jobs
         
         if hasattr(self, "format_for_restore"):
@@ -35,8 +38,8 @@ class Dumper(object):
         return self.dump_cmd.format(**vars)
 
 class PostgresDumper(Dumper):
-    restore_cmd = 'pg_restore --dbname {database_name} --role={database_user} --jobs={jobs} easydump'
-    dump_cmd = "pg_dump --clean --no-owner --format=c {tables} {database_name} > easydump"
+    restore_cmd = 'pg_restore -U {database_user} -h {database_host} -p {database_port} -w {database_password} --dbname {database_name} --jobs={jobs} easydump'
+    dump_cmd = "pg_dump -U {database_user} -h {database_host} -p {database_port} -w {database_password} --dbname {database_name} --no-acl --single-transaction --clean --no-owner --format=c {tables} {database_name} > easydump"
     
     @classmethod
     def format_for_dump(cls, **kwargs):

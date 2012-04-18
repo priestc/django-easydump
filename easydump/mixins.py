@@ -19,7 +19,7 @@ class Manifest(object):
         self.exclude_models = md.get('exclude-models', [])
         self.include_models = md.get('include-models', None)
         self.extra_tables = md.get('extra-tables', [])
-        self.jobs = md.get('jobs', None)
+        self.jobs = md.get('jobs', 2)
         self.reduced_redundancy = md.get('reduced-redundancy', True)
 
         self.bucket = self._get_bucket()
