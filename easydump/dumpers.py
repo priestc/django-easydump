@@ -7,10 +7,11 @@ class Dumper(object):
         if not self.restore_cmd:
             raise NotImplemented("Sorry, your database type is not supported yet")
             
-        database_name = manifest.database['NAME']
-        database_user = manifest.database['USER']
-        database_host = manifest.database['HOST']
-        database_port = manifest.database['PORT']
+        db_name = manifest.database['NAME']
+        db_user = manifest.database['USER']
+        db_host = manifest.database['HOST']
+        db_port = manifest.database['PORT']
+        db_pass = manifest.database['PASSWORD']
         
         jobs = manifest.jobs
         
@@ -26,8 +27,12 @@ class Dumper(object):
         if not self.dump_cmd:
             raise NotImplemented("Sorry, your database type is not supported yet")
         
-        database_name = manifest.database['NAME']
-        database_user = manifest.database['USER']
+        db_name = manifest.database['NAME']
+        db_user = manifest.database['USER']
+        db_host = manifest.database['HOST']
+        db_port = manifest.database['PORT']
+        db_pass = manifest.database['PASSWORD']
+        
         tables = manifest.tables
         
         if hasattr(self, "format_for_dump"):
@@ -38,18 +43,40 @@ class Dumper(object):
         return self.dump_cmd.format(**vars)
 
 class PostgresDumper(Dumper):
-    restore_cmd = 'pg_restore -U {database_user} -h {database_host} -p {database_port} -w {database_password} --dbname {database_name} --jobs={jobs} easydump'
-    dump_cmd = "pg_dump -U {database_user} -h {database_host} -p {database_port} -w {database_password} --dbname {database_name} --no-acl --single-transaction --clean --no-owner --format=c {tables} {database_name} > easydump"
+    restore_cmd = 'pg_restore -U {db_user} {db_host} {db_port} {db_pass} --dbname {db_name} --jobs={jobs} --no-owner easydump'
+    dump_cmd = "pg_dump -U {db_user} {db_host} {db_port} {db_pass} --no-acl --clean --no-owner --format=c {tables} {db_name} > easydump"
     
     @classmethod
     def format_for_dump(cls, **kwargs):
         tables = ""
         for table in kwargs['tables']:
-            tables = tables + "--table %s " % table
+            tables = tables + "--table=%s " % table
+        kwargs['tables'] = tables
         
-        kwargs.update({'tables': tables})
+        if kwargs['db_pass']:
+            kwargs['db_pass'] = "--password"
+        
+        if kwargs['db_port']:
+            kwargs['db_port'] = "-p %s" % kwargs['db_port']
+          
+        if kwargs['db_host']:
+            kwargs['db_host'] = "-h %s" % kwargs['db_host']
+        
         return kwargs
-    
+
+    @classmethod
+    def format_for_restore(cls, **kwargs):
+        if kwargs['db_pass']:
+            kwargs['db_pass'] = "--password"
+
+        if kwargs['db_port']:
+            kwargs['db_port'] = "-p %s" % kwargs['db_port']
+
+        if kwargs['db_host']:
+            kwargs['db_host'] = "-h %s" % kwargs['db_host']
+        
+        return kwargs
+
 class MySQLDumper(Dumper):
     restore_cmd = None
     dump_cmd = None

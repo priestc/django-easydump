@@ -25,6 +25,8 @@ def progress_callback(bytes_done, bytes_togo):
     """
     Print out the progress of the current upload/download.
     """
+    if bytes_togo == 0:
+        return 
     percent = (bytes_done / float(bytes_togo)) * 100
     log.info("%2.2f%% done" % percent)
 
