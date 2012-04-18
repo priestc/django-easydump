@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 METADATA = dict(
     name='django-easydump',
-    version='0.2.5',
+    version='0.2.6',
     #version=open('VERSION').read(),
     author='Chris Priest',
     author_email='cp368202@ohiou.edu',
