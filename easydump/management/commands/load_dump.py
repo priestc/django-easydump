@@ -17,6 +17,8 @@ class Command(EasyDumpCommand):
         parser.add_argument('--manifest', '-m', type=str, default='default',
                             help="The manifest to load as specified in "
                                  "EASYDUMP_MANIFESTS [default='default']")
+        parser.add_argument('--drop', '-d', action='store_true',
+                            help="Drop & recreate the database before loading")
 
     def handle(self, *args, **options):
         
@@ -32,7 +34,14 @@ class Command(EasyDumpCommand):
             key.get_contents_to_filename('easydump', cb=progress_callback)
         else:
             log.info('Skipping download because it already has been downloaded')
-        
+
+        # drop if requested
+        if options['drop']:
+            cmd = manifest.drop_cmd
+            log.debug("drop command: %s" % cmd)
+            import pdb; pdb.set_trace()
+            os.system(cmd)
+
         # put into postgres
         cmd = manifest.restore_cmd
         log.debug("restore command: %s" % cmd)
