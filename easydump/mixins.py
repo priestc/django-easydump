@@ -32,7 +32,10 @@ class Manifest(object):
         self.drop_cmd = dumper.get_drop_cmd(self)
 
     def _get_bucket(self):
-        conn = S3Connection(settings.AWS_ACCESS_KEY, settings.AWS_SECRET_KEY)
+        conn = S3Connection(
+            getattr(settings, 'AWS_ACCESS_KEY_ID', None) or getattr(settings, 'AWS_ACCESS_KEY'),
+            getattr(settings, 'AWS_SECRET_ACCESS_KEY', None) or getattr(settings, 'AWS_SECRET_KEY'),
+        )
         return conn.get_bucket(self.bucket_name)
 
     def _get_database(self):
