@@ -32,11 +32,11 @@ class Command(EasyDumpCommand):
             
             if is_2_weeks_old:
                 if is_monday_9PM:
-                    log.debug("keep:", dt)
+                    log.debug("keep: %s", dt)
                 else:
-                    log.debug("delete:", dt)
+                    log.debug("delete: %s", dt)
                     key.delete()
             else:
-                log.info("keep:", dt)
+                log.info("keep: %s", dt)
         
         log.info("Log Rotation Complete.")
