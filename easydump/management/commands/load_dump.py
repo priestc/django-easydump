@@ -12,10 +12,16 @@ class Command(EasyDumpCommand):
     """
     Retrieve a dump file from S3, then apply it to the database
     """
+
+    def add_arguments(self, parser):
+        parser.add_argument('--manifest', '-m', type=str, default='default',
+                            help="The manifest to load as specified in "
+                                 "EASYDUMP_MANIFESTS [default='default']")
+
     def handle(self, *args, **options):
         
         # get manifest
-        dump = args[0]
+        dump = options['manifest']
         manifest = self.get_manifest(dump)
         
         # get the key for the correct dump (the latest one)
