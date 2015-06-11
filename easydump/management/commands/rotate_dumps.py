@@ -7,10 +7,15 @@ from dateutil import parser
 from easydump.mixins import EasyDumpCommand
 
 class Command(EasyDumpCommand):
+
+    def add_arguments(self, parser):
+        parser.add_argument('--manifest', '-m', type=str, default='default',
+                            help="The manifest to load as specified in "
+                                 "EASYDUMP_MANIFESTS [default='default']")
     
     def handle(self, *args, **options):
         
-        dump = options['dump']
+        dump = options['manifest']
         manifest = self.get_manifest(dump)
         
         two_weeks_ago = datetime.now() - timedelta(days=14)
