@@ -7,7 +7,7 @@ from django.db import models
 
 from boto.s3.connection import S3Connection
 
-import dumpers
+from easydump import dumpers
 
 class Manifest(object):
     """
