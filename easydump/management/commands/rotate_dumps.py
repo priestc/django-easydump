@@ -24,7 +24,7 @@ class Command(EasyDumpCommand):
         keys = manifest.bucket.get_all_keys()
         
         for key in keys:
-            dt = parser.parse(key.key)
+            dt = parser.parse(key.key.split('|')[1])
             
             is_2_weeks_old = dt < two_weeks_ago
             is_3_months_old = dt < three_months_ago
