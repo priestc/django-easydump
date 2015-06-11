@@ -29,6 +29,7 @@ class Manifest(object):
         dumper = self._get_dumper()
         self.dump_cmd = dumper.get_dump_cmd(self)
         self.restore_cmd = dumper.get_restore_cmd(self)
+        self.drop_cmd = dumper.get_drop_cmd(self)
 
     def _get_bucket(self):
         conn = S3Connection(settings.AWS_ACCESS_KEY, settings.AWS_SECRET_KEY)
