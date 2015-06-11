@@ -2,7 +2,7 @@ import os
 from optparse import make_option
 
 from django.conf import settings
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 from django.db import models
 
 from boto.s3.connection import S3Connection
@@ -81,7 +81,7 @@ class Manifest(object):
 
         return set(dump_tables + self.extra_tables)
 
-class EasyDumpCommand(NoArgsCommand):
+class EasyDumpCommand(BaseCommand):
     """
     Common methods for all dump commands
     """

@@ -10,9 +10,14 @@ from easydump.utils import human_size, progress_callback
 
 class Command(EasyDumpCommand):
 
+    def add_arguments(self, parser):
+        parser.add_argument('--manifest', '-m', type=str, default='default',
+                            help="The manifest to load as specified in "
+                                 "EASYDUMP_MANIFESTS [default='default']")
+
     def handle(self, *args, **options):
-        
-        dump = args[0]
+
+        dump = options['manifest']
         manifest = self.get_manifest(dump)
         
         # do the dump only if it already hasn't been done yet
