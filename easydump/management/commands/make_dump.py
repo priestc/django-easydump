@@ -1,5 +1,6 @@
 import datetime
 import os
+import subprocess
 import time
 import logging
 log = logging.getLogger(__name__)
@@ -19,30 +20,57 @@ class Command(EasyDumpCommand):
 
         dump = options['manifest']
         manifest = self.get_manifest(dump)
-        
-        # do the dump only if it already hasn't been done yet
-        if not os.path.exists('easydump'):
-            log.info("Dumping database to file...")
-            log.debug("dump command: %s" % manifest.dump_cmd)
-            os.system(manifest.dump_cmd)
-        else:
-            log.debug("Skipping postgres dump because it already exists")
 
-        size = os.path.getsize('easydump')
-        log.info('resulting dump is %s' % human_size(size))
+        try:
+            # do the dump only if it already hasn't been done yet
+            if not os.path.exists('easydump'):
+                log.info("Dumping database to file...")
+                log.debug("dump command: %s" % manifest.dump_cmd)
+                status = os.system(manifest.dump_cmd)
+                if status != 0:
+                    if os.path.exists('easydump'):
+                        os.remove('easydump')
+                    raise RuntimeError(
+                        "Dump command exited with status %s, refusing to "
+                        "upload: %s" % (status, manifest.dump_cmd))
+            else:
+                log.debug("Skipping postgres dump because it already exists")
 
-        # make a key into the bucket where we will put the dump
-        k = Key(manifest.bucket)
-        k.key = "%s|%s" % (dump, datetime.datetime.now().isoformat())
+            size = os.path.getsize('easydump')
+            log.info('resulting dump is %s' % human_size(size))
 
-        # upload file
-        log.info("uploading %s to s3://%s/..." % (k.key, manifest.bucket_name))
-        k.set_contents_from_filename(
-            'easydump',
-            reduced_redundancy=manifest.reduced_redundancy,
-            cb=progress_callback)
+            if 'postgres' in manifest.database['ENGINE']:
+                log.info("Verifying dump integrity...")
+                result = subprocess.call(
+                    ['pg_restore', '--data-only', '-f', os.devnull, 'easydump'])
+                if result != 0:
+                    os.remove('easydump')
+                    raise RuntimeError(
+                        "Dump file failed integrity check (pg_restore exited "
+                        "%s) - refusing to upload a corrupt/truncated backup" %
+                        result)
+                log.info("Dump integrity OK.")
 
-        # clean up
-        os.remove('easydump')
-        
-        log.info("Data Dump Successfully Uploaded.")
+            # make a key into the bucket where we will put the dump
+            k = Key(manifest.bucket)
+            k.key = "%s|%s" % (dump, datetime.datetime.now().isoformat())
+
+            # upload file
+            log.info("uploading %s to s3://%s/..." % (k.key, manifest.bucket_name))
+            k.set_contents_from_filename(
+                'easydump',
+                reduced_redundancy=manifest.reduced_redundancy,
+                cb=progress_callback)
+
+            # clean up
+            os.remove('easydump')
+
+            log.info("Data Dump Successfully Uploaded.")
+
+        except Exception as e:
+            log.error("Backup failed for manifest '%s': %s" % (dump, e))
+            self.notify_failure(
+                subject="[easydump] backup FAILED for manifest '%s'" % dump,
+                message="The easydump backup for manifest '%s' failed:\n\n%s"
+                        % (dump, e))
+            raise

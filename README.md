@@ -18,6 +18,9 @@ In your settings, add three settings: `AWS_SECRET_KEY`, `AWS_ACCESS_KEY`, and `E
     AWS_SECRET_KEY = ''
     AWS_ACCESS_KEY = ''
 
+    # optional: email address(es) to notify when make_dump fails
+    EASYDUMP_FAILURE_EMAIL = 'admin@example.com'
+
     EASYDUMP_MANIFESTS = {
         'location': {
             'database': 'default',
@@ -39,6 +42,7 @@ In your settings, add three settings: `AWS_SECRET_KEY`, `AWS_ACCESS_KEY`, and `E
 * `s3-bucket` is the name of the bucket you want dumps to be saved to.
 * `reduced-redundancy` - When uploading dumps, if this value is `True`, it will save the file to S3 using the
 [reduced_redundancy](http://aws.amazon.com/about-aws/whats-new/2010/05/19/announcing-amazon-s3-reduced-redundancy-storage/) flag.
+* `EASYDUMP_FAILURE_EMAIL` (optional, global setting, not part of a manifest) - an email address, or list of addresses, to notify via Django's mail backend if `make_dump` fails for any reason (dump command errors, a corrupt/truncated dump, or an S3 upload failure). Sent using `DEFAULT_FROM_EMAIL` as the sender. If unset, no notification is sent - the command will still fail loudly (non-zero exit, logged error) either way.
 
 # Usage #
 `python manage.py make_dump default`
@@ -57,6 +61,10 @@ This will go through your bucket and remove all dumps except for ones performed 
 Postgres/Postgis currently only supported. Mysql/Oracle/SQLite support coming soon.
 
 # Changelog #
+### unreleased ###
+* `make_dump` now checks the dump command's exit status and verifies dump integrity with `pg_restore` before uploading, instead of silently uploading a truncated/corrupt file
+* added `EASYDUMP_FAILURE_EMAIL` setting to notify by email when `make_dump` fails
+
 ### v0.1.0 ###
 * initial release
 

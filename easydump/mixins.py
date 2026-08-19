@@ -2,6 +2,7 @@ import os
 from optparse import make_option
 
 from django.conf import settings
+from django.core.mail import send_mail
 from django.core.management.base import BaseCommand
 from django.db import models
 
@@ -94,3 +95,18 @@ class EasyDumpCommand(BaseCommand):
             raise KeyError("Can't find manifest, is it in EASYDUMP_MANIFESTS?")
 
         return Manifest(manifest_dict)
+
+    def notify_failure(self, subject, message):
+        """
+        Emails EASYDUMP_FAILURE_EMAIL (if configured in settings) to report
+        a backup failure. Never raises - a broken mail config shouldn't mask
+        the original failure that triggered this call.
+        """
+        recipient = getattr(settings, 'EASYDUMP_FAILURE_EMAIL', None)
+        if not recipient:
+            return
+
+        recipients = recipient if isinstance(recipient, (list, tuple)) else [recipient]
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'easydump@localhost')
+
+        send_mail(subject, message, from_email, recipients, fail_silently=True)
