@@ -5,9 +5,8 @@ import time
 import logging
 log = logging.getLogger(__name__)
 
-from boto.s3.key import Key
 from easydump.mixins import EasyDumpCommand
-from easydump.utils import human_size, progress_callback
+from easydump.utils import human_size, make_progress_callback
 
 class Command(EasyDumpCommand):
 
@@ -51,16 +50,20 @@ class Command(EasyDumpCommand):
                         result)
                 log.info("Dump integrity OK.")
 
-            # make a key into the bucket where we will put the dump
-            k = Key(manifest.bucket)
-            k.key = "%s|%s" % (dump, datetime.datetime.now().isoformat())
+            # the key where we will put the dump in the bucket
+            key_name = "%s|%s" % (dump, datetime.datetime.now().isoformat())
+
+            extra_args = {}
+            if manifest.reduced_redundancy:
+                extra_args['StorageClass'] = 'REDUCED_REDUNDANCY'
 
             # upload file
-            log.info("uploading %s to s3://%s/..." % (k.key, manifest.bucket_name))
-            k.set_contents_from_filename(
+            log.info("uploading %s to s3://%s/..." % (key_name, manifest.bucket_name))
+            manifest.bucket.upload_file(
                 'easydump',
-                reduced_redundancy=manifest.reduced_redundancy,
-                cb=progress_callback)
+                key_name,
+                ExtraArgs=extra_args,
+                Callback=make_progress_callback(size))
 
             # clean up
             os.remove('easydump')

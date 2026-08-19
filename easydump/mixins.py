@@ -1,11 +1,10 @@
 import os
 
+import boto3
 from django.apps import apps
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.management.base import BaseCommand
-
-from boto.s3.connection import S3Connection
 
 from easydump import dumpers
 
@@ -32,8 +31,13 @@ class Manifest:
         self.drop_cmd = dumper.get_drop_cmd(self)
 
     def _get_bucket(self):
-        conn = S3Connection(settings.AWS_ACCESS_KEY, settings.AWS_SECRET_KEY)
-        return conn.get_bucket(self.bucket_name)
+        s3 = boto3.resource(
+            's3',
+            aws_access_key_id=settings.AWS_ACCESS_KEY,
+            aws_secret_access_key=settings.AWS_SECRET_KEY,
+            region_name=getattr(settings, 'AWS_REGION', 'us-east-1'),
+        )
+        return s3.Bucket(self.bucket_name)
 
     def _get_database(self):
         return settings.DATABASES[self.database_name]

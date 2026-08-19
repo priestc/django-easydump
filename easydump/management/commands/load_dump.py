@@ -6,7 +6,7 @@ log = logging.getLogger(__name__)
 from django.conf import settings
 from easydump.mixins import EasyDumpCommand
 
-from easydump.utils import key_parser, progress_callback
+from easydump.utils import key_parser, make_progress_callback
 
 class Command(EasyDumpCommand):
     """
@@ -27,11 +27,11 @@ class Command(EasyDumpCommand):
         manifest = self.get_manifest(dump)
         
         # get the key for the correct dump (the latest one)
-        key = self.get_latest(manifest.bucket, dump)
-        
+        key, size = self.get_latest(manifest.bucket, dump)
+
         if not os.path.exists('easydump'):
             log.info("Downloading from S3...")
-            key.get_contents_to_filename('easydump', cb=progress_callback)
+            key.download_file('easydump', Callback=make_progress_callback(size))
         else:
             log.info('Skipping download because it already has been downloaded')
 
@@ -50,24 +50,25 @@ class Command(EasyDumpCommand):
     def get_latest(self, bucket, prefix):
         """
         Given a S3 bucket, return the key in that bucket named with the latest
-        timestamp, AND has the given prefix.
+        timestamp, AND has the given prefix. Returns (Object, size).
         """
         none = datetime.datetime(1,1,1) # always be expired
-        
+
         def p(name, prefix):
             """
-            A new parser function because the sorted() function can't compare 
+            A new parser function because the sorted() function can't compare
             datetime objects with None, so instead of None, return a really really
             old datetime object.
             """
             return key_parser(name, prefix) or none
-        
-        keys = [{'dt': p(k.name, prefix), 'string': k.name} for k in bucket.list()]
+
+        keys = [{'dt': p(k.key, prefix), 'string': k.key, 'size': k.size}
+                for k in bucket.objects.all()]
         latest = sorted(keys, key=lambda x: x['dt'])[-1]
         key = latest['string']
         dt = latest['dt']
-        
+
         assert dt is not none, "Can't find any dumps in bucket"
-        
+
         log.info("Using latest dump from: {0:%B %d, %Y -- %X}".format(dt))
-        return bucket.get_key(key)
+        return bucket.Object(key), latest['size']

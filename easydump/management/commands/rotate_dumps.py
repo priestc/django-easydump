@@ -21,7 +21,7 @@ class Command(EasyDumpCommand):
         two_weeks_ago = datetime.now() - timedelta(days=14)
         three_months_ago = datetime.now() - timedelta(days=90)
         
-        keys = manifest.bucket.get_all_keys()
+        keys = manifest.bucket.objects.all()
         
         for key in keys:
             dt = parser.parse(key.key.split('|')[1])

@@ -21,14 +21,25 @@ def key_parser(key, prefix):
         log.debug("wrong prefix: %s" % key)
         return None
 
-def progress_callback(bytes_done, bytes_togo):
+def make_progress_callback(total_size):
     """
-    Print out the progress of the current upload/download.
+    Returns a boto3-compatible progress callback. boto3's Callback is
+    invoked with the number of bytes transferred *since the last call*
+    (not a cumulative total, unlike boto2's callback), so we track the
+    running total ourselves against total_size, which the caller must
+    already know (e.g. via os.path.getsize or an object's size/
+    content_length) since boto3 doesn't hand it to the callback.
     """
-    if bytes_togo == 0:
-        return 
-    percent = (bytes_done / float(bytes_togo)) * 100
-    log.info("%2.2f%% done" % percent)
+    state = {'seen': 0}
+
+    def callback(bytes_amount):
+        state['seen'] += bytes_amount
+        if not total_size:
+            return
+        percent = (state['seen'] / float(total_size)) * 100
+        log.info("%2.2f%% done" % percent)
+
+    return callback
 
 
 def human_size(size_bytes):
