@@ -1,16 +1,15 @@
 import os
-from optparse import make_option
 
+from django.apps import apps
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.management.base import BaseCommand
-from django.db import models
 
 from boto.s3.connection import S3Connection
 
 from easydump import dumpers
 
-class Manifest(object):
+class Manifest:
     """
     Wrapper class that makes working with manifests easier.
     """
@@ -62,7 +61,7 @@ class Manifest(object):
         Return all the database tables that we are going to dump.
         """
 
-        all_models = models.get_models()
+        all_models = apps.get_models()
         dump_tables = []
 
         for model in all_models:

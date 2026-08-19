@@ -64,6 +64,8 @@ Postgres/Postgis currently only supported. Mysql/Oracle/SQLite support coming so
 ### unreleased ###
 * `make_dump` now checks the dump command's exit status and verifies dump integrity with `pg_restore` before uploading, instead of silently uploading a truncated/corrupt file
 * added `EASYDUMP_FAILURE_EMAIL` setting to notify by email when `make_dump` fails
+* fixed `Manifest._get_tables()` using `django.db.models.get_models()`, which was removed in Django 1.9 - now uses the `django.apps` registry, restoring compatibility with current Django
+* removed a stray `pdb.set_trace()` left in `load_dump --drop`, which would hang the command when run non-interactively
 
 ### v0.1.0 ###
 * initial release

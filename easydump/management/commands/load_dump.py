@@ -39,7 +39,6 @@ class Command(EasyDumpCommand):
         if options['drop']:
             cmd = manifest.drop_cmd
             log.debug("drop command: %s" % cmd)
-            import pdb; pdb.set_trace()
             os.system(cmd)
 
         # put into postgres
